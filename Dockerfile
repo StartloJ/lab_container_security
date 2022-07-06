@@ -13,3 +13,5 @@ RUN addgroup -g 1000 -S anchore && \
 USER anchore
 
 RUN pip install --upgrade --user pip anchorecli
+
+ENTRYPOINT [ "/home/anchore/.local/bin/anchore-cli" ]
