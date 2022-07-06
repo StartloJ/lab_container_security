@@ -7,6 +7,86 @@ This repository is provided for learning about platform that report vulnerabilit
 - docker
 - docker-compose
 
+## How to use container cli
+
+Image base on Anchore-cli version **0.9.3**, you can read Dockerfile in following  
+
+```Dockerfile
+FROM python:3.10-alpine3.15
+
+LABEL Developer="Start"
+LABEL Platform="DevSecOps"
+
+ENV ANCHORE_CLI_URL=http://api:8228/v1
+ENV ANCHORE_CLI_USER=admin
+ENV ANCHORE_CLI_PASS=foobar
+
+RUN addgroup -g 1000 -S anchore && \
+    adduser -D -u 1000 -S anchore -G anchore
+
+USER anchore
+
+RUN pip install --upgrade --user pip anchorecli
+
+ENTRYPOINT [ "/home/anchore/.local/bin/anchore-cli" ]
+```
+
+You can use this image like:  
+
+```bash
+$ docker run -it --rm opsta/anchore-cli:0.9.3 help
+Usage: anchore-cli [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --config TEXT       Set the location of the anchore-cli yaml configuration
+                      file
+  --debug             Debug output to stderr
+  --u TEXT            Username (or use environment variable ANCHORE_CLI_USER)
+  --p TEXT            Password (or use environment variable ANCHORE_CLI_PASS)
+  --url TEXT          Service URL (or use environment variable
+                      ANCHORE_CLI_URL)
+  --hub-url TEXT      Anchore Hub URL (or use environment variable
+                      ANCHORE_CLI_HUB_URL)
+  --api-version TEXT  Explicitly specify the API version to skip checking.
+                      Useful when swagger endpoint is inaccessible
+  --insecure          Skip SSL cert checks (or use environment variable
+                      ANCHORE_CLI_SSL_VERIFY=<y/n>)
+  --json              Output raw API JSON
+  --as-account TEXT   Set account context for the command to another account
+                      than the one the user belongs to. Subject to authz
+  --version           Show the version and exit.
+  -h, --help          Show this message and exit.
+
+Commands:
+  account           Account operations
+  analysis-archive  Archive operations
+  enterprise        Enterprise Anchore operations
+  evaluate          Policy evaluation operations
+  event             Event operations
+  help
+  image             Image operations
+  policy            Policy operations
+  query             Query operations
+  registry          Registry operations
+  repo              Repository operations
+  subscription      Subscription operations
+  system            System operations
+```
+
+You can change credentails and endpoint with inject Environment variables from:
+
+- Change with CLI options
+
+    ```bash
+    docker run -it opsta/anchore-cli:0.9.3 --u admin --p password --url 'http://api:8228/v1' image list
+    ```
+
+- Change with Global environment
+
+    ```bash
+    docker run -it -e 'ANCHORE_CLI_URL=http://api:8228/v1' -e 'ANCHORE_CLI_USER=admin' -e 'ANCHORE_CLI_PASS=password' opsta/anchore-cli:0.9.3 image list
+    ```
+
 ## Step to walkthrough workshop
 
 1. Provision docker-compose
